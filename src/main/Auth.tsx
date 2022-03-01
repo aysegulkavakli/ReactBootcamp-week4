@@ -52,15 +52,16 @@ export default function Auth(){
                 <>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic-tab">
-                        <Tab label="Register" {...a11yProps(0)} />
-                        <Tab label="Login" {...a11yProps(1)} />
+                        <Tab label="Login" {...a11yProps(0)} />
+                        <Tab label="Register" {...a11yProps(1)} />
                     </Tabs>
                 </Box>
                     <TabPanel value={value} index={0}>
-                        <Register />
+                        <Login setLoggedIn={setLoggedIn}/>
                     </TabPanel>
                     <TabPanel value={value} index={1}>
-                        <Login setLoggedIn={setLoggedIn}/>
+                        <Register />
+
                     </TabPanel>
                 </>
 

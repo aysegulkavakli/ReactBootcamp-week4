@@ -1,5 +1,5 @@
 import { Button, Stack, TextField} from "@mui/material";
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
 interface User{
@@ -9,11 +9,7 @@ interface User{
 }
 export default function Register(){
     const [data, setData] = useState<User>({username:"", password:"", passwordConfirm:""});
-    const [token,setToken] =  useState();
 
-    const config = {
-        headers:{Authorization:~`Bearer ${token}`}
-    }
     const handleChange  = (e:React.ChangeEvent<HTMLInputElement>) => {
         const newData:User = {...data}
         newData[e.currentTarget.name as keyof User] = e.currentTarget.value
@@ -21,10 +17,9 @@ export default function Register(){
     }
     function register() {
         axios.post('http://localhost:80/auth/register',
-           data
-        , config)
+           data)
             .then(function (response) {
-                setToken(response.data.token);
+                console.log(response)
             })
             .catch(function (error) {
                 console.log(error);

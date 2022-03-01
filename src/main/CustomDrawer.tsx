@@ -1,5 +1,5 @@
 import React, {ReactNode} from "react";
-import {Drawer, Input} from "@mui/material";
+import {Drawer} from "@mui/material";
 
 interface Props {
     setOpen:(val:boolean) => void;
