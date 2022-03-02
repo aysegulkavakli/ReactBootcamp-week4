@@ -13,9 +13,8 @@ interface Props {
 }
 
 export default function AddStatusForm({category}: Props) {
-    const [status, setStatus] = useState<Status>({title: "", categoryId: category.id, color: ""});
-    const [statusTitles, setStatusTitles] = useState<any>();
-    const categoryId = category.id;
+    const [status, setStatus] = useState<Status>({title: "", categoryId: "", color: ""});
+    const [statusData, setStatusData] = useState<any>();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newData = {...status}
@@ -27,8 +26,8 @@ export default function AddStatusForm({category}: Props) {
         AxiosInstance.post('/status',
             status,
         )
-            .then(function (response) {
-                console.log(response)
+            .then(function () {
+                getStatusList();
             })
             .catch(function (error) {
                 console.log(error);
@@ -37,10 +36,20 @@ export default function AddStatusForm({category}: Props) {
 
     function getStatusList() {
         AxiosInstance.get('/status',
-            { params: { categoryId: categoryId } })
+            { params: { categoryId: category.id } })
             .then(function (response) {
-                console.log("response", response)
-                setStatusTitles(response.data)
+                setStatusData(response.data)
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    function deleteStatus(id:string) {
+        AxiosInstance.delete(`status/${id}`,
+        )
+            .then(function () {
+                getStatusList();
 
             })
             .catch(function (error) {
@@ -48,22 +57,32 @@ export default function AddStatusForm({category}: Props) {
             });
     }
 
+    function updateStatus(id:string) {
+        AxiosInstance.put(`status/${id}`,
+        )
+            .then(function () {
+                getStatusList();
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
     useEffect(() => {
-        category && getStatusList();
+        getStatusList();
     }, [])
 
     return (
         <Stack direction="column" p={3} spacing={2}>
             <Input placeholder="Status name" name="title" value={status.title} onChange={handleChange}/>
             <Input placeholder="Status color" name="color" value={status.color} onChange={handleChange}/>
-            <Button variant="contained" onClick={() => addStatus()}>Add Category</Button>
-            {statusTitles && statusTitles((s: any) => (
+            <Button variant="contained" onClick={() => addStatus()}>Add Status</Button>
+            {statusData && statusData.map((s: any) => (
                 <Stack direction="row" display="flex" alignItems="center" spacing={3}>
                     <Box>
                         {s.title}
                     </Box>
-                    <Button>Sil</Button>
-                    <Button>Düzenle</Button>
+                    <Button onClick={()=>deleteStatus(s.id)}>Sil</Button>
+                    <Button onClick={()=>updateStatus(s.id)}>Düzenle</Button>
                 </Stack>
             ))
             }

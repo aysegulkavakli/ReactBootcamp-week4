@@ -24,14 +24,14 @@ export default function AddCategoryForm() {
             category,
         )
             .then(function (response) {
-                console.log(response)
+                getCategoryList();
             })
             .catch(function (error) {
                 console.log(error);
             });
     }
 
-    function getCategory() {
+    function getCategoryList() {
         AxiosInstance.get('/category',
         )
             .then(function (response) {
@@ -43,7 +43,7 @@ export default function AddCategoryForm() {
     }
 
     useEffect(() => {
-        getCategory();
+        getCategoryList();
     }, [])
 
 
@@ -56,7 +56,7 @@ export default function AddCategoryForm() {
                     <Box>
                         {c.title}
                     </Box>
-                    <Button onClick={() => setOpen({isVisible:true, category: c})}>Statüleri Düzenle</Button>
+                    <Button onClick={() => setOpen({isVisible:true, category: c})}>Edit Status</Button>
                 </Stack>
             ))
             }
