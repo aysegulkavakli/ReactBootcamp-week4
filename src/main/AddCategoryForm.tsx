@@ -8,9 +8,14 @@ interface Category {
     title: string;
 }
 
-export default function AddCategoryForm() {
+interface Props {
+    categoryList: any;
+}
+
+
+export default function AddCategoryForm({categoryList} :Props) {
     const [category, setCategory] = useState<Category>({title: ""});
-    const [categories, setCategories] = useState<any>();
+
     const [open, setOpen] = React.useState({isVisible:false, category:null});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,34 +29,19 @@ export default function AddCategoryForm() {
             category,
         )
             .then(function (response) {
-                getCategoryList();
+
             })
             .catch(function (error) {
                 console.log(error);
             });
     }
-
-    function getCategoryList() {
-        AxiosInstance.get('/category',
-        )
-            .then(function (response) {
-                setCategories(response.data)
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-    }
-
-    useEffect(() => {
-        getCategoryList();
-    }, [])
 
 
     return (
         <Stack direction="column" p={3} spacing={2}>
             <Input placeholder="Category name" name="title" value={category.title} onChange={handleChange}/>
             <Button variant="contained" onClick={() => addCategory()}>Add Category</Button>
-            {categories && categories.map((c: any) => (
+            {categoryList && categoryList.map((c: any) => (
                 <Stack direction="row" display="flex" alignItems="center" spacing={3}>
                     <Box>
                         {c.title}

@@ -1,37 +1,120 @@
-import React from "react";
-import {Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField} from "@mui/material";
+import React, {ChangeEvent, useEffect, useState} from "react";
+import {
+    Box,
+    Button,
+    FormControl,
+    Input,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    Stack,
+} from "@mui/material";
 import CustomDrawer from "./CustomDrawer";
 import AddCategoryForm from "./AddCategoryForm";
+import {AxiosInstance} from "./AxiosClient";
+import {Category} from "./models/Category";
+import {Status} from "./models/Status";
+import {Todo} from "./models/Todo";
 
 export default  function TodoList(){
-    const [category, setCategory] = React.useState('');
-    const [status, setStatus] = React.useState('');
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+    const [selectedStatusId, setSelectedStatusId] = useState<string>("");
+    const [todoTitle, setTodoTitle] = useState<string>("");
+
+    const [categoryList, setCategoryList] = useState<Category[]>([]);
+    const [statusList, setStatusList] = useState<Status[]>([]);
+    const [todoList, setTodoList] = useState<Todo[]>([]);
+
+
+    function getStatusList() {
+        AxiosInstance.get('/status',
+            { params: { categoryId: selectedCategoryId } })
+            .then(function (response) {
+                setStatusList(response.data)
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    function getCategoryList() {
+        AxiosInstance.get('/category',
+        )
+            .then(function (response) {
+                setCategoryList(response.data)
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    function getTodoList() {
+        AxiosInstance.get('/todo',
+        )
+            .then(function (response) {
+                setTodoList(response.data)
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    function addTodo() {
+        AxiosInstance.post('/todo',
+             {title: todoTitle, categoryId: selectedCategoryId, statusId: selectedStatusId}
+        )
+            .then(function (response) {
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+console.log(selectedStatusId);
+    useEffect(() => {
+        getCategoryList();
+    }, [])
+
+    useEffect(() => {
+        getTodoList();
+    }, [todoTitle])
+
+
+    useEffect(() => {
+        getStatusList();
+    }, [selectedCategoryId])
 
     const handleChangeCategory = (event: SelectChangeEvent) => {
-        setCategory(event.target.value as string);
+        setSelectedCategoryId(event.target.value as string);
     };
     const handleChangeStatus = (event: SelectChangeEvent) => {
-        setStatus(event.target.value as string);
+        setSelectedStatusId(event.target.value as string);
     };
+    const handleAddTodoTitle = (event: ChangeEvent<HTMLInputElement>) => {
+        setTodoTitle(event.target.value as string);
+    };
+
     return(
         <Stack direction="column">
             <div>Filter will come</div>
             <Stack direction="row" spacing={2}>
-                <TextField label="Description"/>
+                <Input placeholder="Description" value={todoTitle} onChange={handleAddTodoTitle}/>
 
                 <FormControl sx={{  minWidth: 120 }}>
                     <InputLabel id="demo-simple-select-helper-label">Category</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={category}
+                    value={selectedCategoryId}
                     label="Category"
                     onChange={handleChangeCategory}
                 >
-                    <MenuItem value={10}>category1</MenuItem>
-                    <MenuItem value={20}>category2</MenuItem>
-                    <MenuItem value={30}>category3</MenuItem>
+                    {categoryList.map((category)=> (
+                        <MenuItem value={category.id}>{category.title}</MenuItem>)
+                    )}
+
                 </Select>
             </FormControl>
                 <FormControl sx={{  minWidth: 120 }}>
@@ -39,23 +122,53 @@ export default  function TodoList(){
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={status}
+                    value={selectedStatusId}
                     label="Status"
                     onChange={handleChangeStatus}
                 >
-                    <MenuItem value={10}>status1</MenuItem>
-                    <MenuItem value={20}>status2</MenuItem>
-                    <MenuItem value={30}>status3</MenuItem>
+                    {statusList.map((status)=> (
+                        <MenuItem value={status.id}>{status.title}</MenuItem>)
+                    )}
                 </Select>
                 </FormControl>
-                <Button variant="contained">
+                <Button variant="contained" onClick={()=> addTodo()}>
                     Ekle
                 </Button>
             </Stack>
+            {todoList.length>0 && todoList.map((todo)=> (
+                <Stack direction="row">
+                    <Box>
+                        {todo.title}
+                    </Box>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={(todo.categoryId).toString()}
+                        label="Status"
+                        onChange={handleChangeCategory}
+                    >
+                        {categoryList.map((category)=> (
+                            <MenuItem value={category.id}>{category.title}</MenuItem>)
+                        )}
+                    </Select>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={(todo.statusId).toString()}
+                        label="Status"
+                        onChange={handleChangeStatus}
+                    >
+                        {statusList.map((status)=> (
+                            <MenuItem value={status.id}>{status.title}</MenuItem>)
+                        )}
+                    </Select>
+                </Stack>
+            ))}
+
             <Stack direction="row" display="flex" justifyContent="flex-start" mt={2}>
                 <Button variant="contained" sx={{minWidth:100}} onClick={()=>setOpen(true)}>Kategorileri Düzenle</Button>
             </Stack>
-            <CustomDrawer open={open} setOpen={setOpen}  children={<AddCategoryForm />}/>
+            <CustomDrawer open={open} setOpen={setOpen}  children={<AddCategoryForm categoryList={categoryList}/>}/>
         </Stack>
     )
 }
